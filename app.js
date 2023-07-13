@@ -21,6 +21,11 @@ app.use(bodyParser.json())
 // Serve static files from the "public" directory
 app.use(express.static(path.join(__dirname, '/public')))
 
+
+app.get('/signup.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'pages', 'signup.html'));
+});
+
 const loginandsignupRouter = require('./routes/signupandlogin')
 
 app.use(loginandsignupRouter)

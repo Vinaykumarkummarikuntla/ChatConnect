@@ -11,6 +11,7 @@ function saveToServer (event) {
       .post('http://localhost:3000/signupdetails', obj)
       .then((response) => {
         console.log(response)
+        alert("Successfuly signed up")
         redirectToLogin()
       })
       .catch((err) => {
@@ -18,6 +19,6 @@ function saveToServer (event) {
       })
   }
   function redirectToLogin () {
-    window.location.href = '/pages/login.html'
+    window.location.href = '/pages/index.html'
   }
   

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="../css/signup.css" />
+  </head>
+  <body>
+    <div class="bg-img">
+      <div class="content">
+        <header>Signup Form</header>
+        <form onsubmit="saveToServer(event)">
+          <div class="field">
+            <label for="usernameinput">Enter Username:</label>
+            <input
+              type="text"
+              required
+              placeholder="Username"
+              id="usernameinput"
+            />
+          </div>
+          <div class="field">
+            <label for="phonenumberinput">Enter Phonenumber:</label> <br />
+            <input
+              type="phonenumber"
+              required
+              placeholder="Phonenumber"
+              id="Phonenumberinput"
+            />
+          </div>
+          <div class="field">
+            <label for="emailinput">Enter Email:</label> <br />
+            <input type="email" required placeholder="Email" id="emailinput" />
+          </div>
+          <div class="field">
+            <label for="passwordinput">Enter Password:</label> <br />
+            <input
+              type="password"
+              required
+              placeholder="Password"
+              id="passwordinput"
+            />
+          </div>
+          <div class="field">
+            <input type="submit" value="Sign Up" />
+          </div>
+        </form>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="../js/signup.js "></script>
+  </body>
+</html>

@@ -3,9 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/chat.css">
     <title>Chat</title>
 </head>
 <body>
+  <div id="main-header">
     <h1>Welcome to ChatConnect</h1>
+  </div>
+    <table id = "chattable">
+        <tr class="dark-row">
+          <td>You joined</td>
+        </tr>
+        <tr class="white-row">
+          <td>Vaibav joined</td>
+        </tr>
+        <tr class="dark-row">
+          <td>Vaibav: hello</td>
+        </tr>
+        <tr class="white-row">
+          <td>you: Hi there</td>
+        </tr>
+        <tr class="dark-row">
+          <td>vaibav : whatsup?</td>
+        </tr>
+        <tr class="white-row">
+          <td>vaibav : All good</td>
+        </tr>
+      </table>
+      <div id="send-message">
+        
+        <input type="text" placeholder="Type your message">
+        <div id="send-button">
+          <button onclick="Hii">Send</button>
+        </div>
+      </div>
+      <script src="../js/chat.js"></script>
 </body>
 </html>

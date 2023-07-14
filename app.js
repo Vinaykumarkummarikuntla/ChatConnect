@@ -25,10 +25,20 @@ app.use(express.static(path.join(__dirname, '/public')))
 app.get('/signup.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'pages', 'signup.html'));
 });
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'pages', 'index.html'));
+});
+
+// app.use((req, res) => {
+//   console.log('url', req.url)
+//   res.sendFile(path.join(__dirname, `public/pages/${req.url}`))
+// })
 
 const loginandsignupRouter = require('./routes/signupandlogin')
+const chatRouter = require('./routes/chat')
 
 app.use(loginandsignupRouter)
+app.use(chatRouter)
 
 sequelize
   // .sync({ force: true })

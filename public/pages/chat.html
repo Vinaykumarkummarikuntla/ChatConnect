@@ -8,7 +8,7 @@
 </head>
 <body>
   <div id="main-header">
-    <h1>Welcome to ChatConnect</h1>
+    <h1>ChatConnect</h1>
   </div>
     <table id = "chattable">
         <tr class="dark-row">
@@ -32,11 +32,12 @@
       </table>
       <div id="send-message">
         
-        <input type="text" placeholder="Type your message">
+        <input type="text" placeholder="Type your message" id ="message">
         <div id="send-button">
-          <button onclick="Hii">Send</button>
+          <button onclick="saveToDb(event)">Send</button>
         </div>
       </div>
       <script src="../js/chat.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </body>
 </html>

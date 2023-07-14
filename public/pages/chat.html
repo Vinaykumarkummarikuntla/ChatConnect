@@ -10,6 +10,34 @@
   <div id="main-header">
     <h1>ChatConnect</h1>
   </div>
+
+  <div class="sidebar">
+    <div id="create-group-container">
+      <h3>Create Group</h3>
+      <input type="text" id="group-name-input" placeholder="Enter group name">
+      <button id="create-group-button" onclick="saveToGroupDB(event)">Create</button>
+    </div>
+    
+    <h2>My Groups</h2>
+    <ul class="group-list">
+      <li class="group-item">
+        <a href="#" class="active">Group 1</a>
+      </li>
+      <li class="group-item">
+        <a href="#">Group 2</a>
+      </li>
+      <li class="group-item">
+        <a href="#">Group 3</a>
+      </li>
+      <!-- Add more <li> elements for additional groups -->
+    </ul>
+  </div>
+
+
+
+
+
+
     <table id = "chattable">
         <tr class="dark-row">
           <td>You joined</td>
@@ -37,6 +65,11 @@
           <button onclick="saveToDb(event)">Send</button>
         </div>
       </div>
+ <!--  -->
+      
+      
+
+
       <script src="../js/chat.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </body>

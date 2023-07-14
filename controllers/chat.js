@@ -31,3 +31,19 @@ exports.getchatdetails = async (req, res, next) => {
     // console.error(err);
   }
 }
+
+
+exports.getgroupchatdetails = async (req, res, next) => {
+  try {
+    const groupid = req.query.groupid
+    console.log("QUERYID",groupid)
+
+     const data = await message.findAll({
+      where: { groupId: groupid },
+    })
+    res.status(200).json({ groupChatMessages: data })
+  } catch (err) {
+    logger.error('An error occurred:', err)
+    // console.error(err);
+  }
+}

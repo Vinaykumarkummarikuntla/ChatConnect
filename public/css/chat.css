@@ -5,10 +5,11 @@
   }
 #chattable{
    align-items: center; 
-   margin-left: auto;
+   margin-left: 25%;
    margin-right: auto;
-   width:75%;
+   width:70%;
    height: 200px;
+   /* float: left; */
 }
 .dark-row {
     background-color: #333;
@@ -33,6 +34,47 @@
   }
   #send-button {
     margin-left: 20px; /* Add some spacing between the button and input */
+  }
+  
+
+
+  .sidebar {
+    background-color: #f5f5f5;
+    padding: 20px;
+    width: 250px;
+    float: left;
+    background-color:antiquewhite;
+  }
+  
+  .sidebar h2 {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+  
+  .group-list {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .group-item {
+    margin-bottom: 5px;
+  }
+  
+  .group-item a {
+    display: block;
+    padding: 10px;
+    color: #333;
+    text-decoration: none;
+    transition: background-color 0.3s ease;
+  }
+  
+  .group-item a:hover {
+    background-color:cadetblue;
+  }
+  
+  .group-item a.active {
+    background-color:aqua;
+    font-weight: bold;
   }
   
   

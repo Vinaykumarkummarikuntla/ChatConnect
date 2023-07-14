@@ -11,6 +11,9 @@ const sequelize = require('./util/database')
 
 const app = express()
 
+messages = require('./models/chatmodel')
+group = require('./models/groupmodel')
+
 
 app.use(cors())
 // app.use(helmet())
@@ -36,9 +39,14 @@ app.get('/', (req, res) => {
 
 const loginandsignupRouter = require('./routes/signupandlogin')
 const chatRouter = require('./routes/chat')
+const groupRouter =require('./routes/group')
 
 app.use(loginandsignupRouter)
 app.use(chatRouter)
+app.use(groupRouter)
+
+group.hasMany(messages) // user has many forgot passwords requests
+messages.belongsTo(group)
 
 sequelize
   // .sync({ force: true })

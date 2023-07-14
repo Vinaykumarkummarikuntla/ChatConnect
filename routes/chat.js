@@ -10,4 +10,6 @@ router.post('/chatdetails',userAuthentication.authenticate,chatController.chatde
 // get messages
 router.get ('/chatdetails',userAuthentication.authenticate,chatController.getchatdetails)
 
+
+
 module.exports = router

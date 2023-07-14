@@ -18,7 +18,7 @@ async function saveToDb(event) {
     console.log(response.data, "FULLDATA");
     console.log(response.data.chatdetails.message, "MESSAGE");
     console.log(response.status, "STATUS");
-    showMessages(response.data.chatdetails.message);
+    // showMessages(response.data.chatdetails.message);
   } catch (err) {
     console.log(err);
   }
@@ -26,31 +26,40 @@ async function saveToDb(event) {
 
 window.addEventListener("DOMContentLoaded", () => {
   const token = localStorage.getItem("token");
+  let existingMessages = [];
 
-  async function getmessages() {
-    console.log("function called");
+  async function getMessages() {
     try {
       const response = await axios.get("http://localhost:3000/chatdetails", {
         headers: { Authorization: token },
       });
-      console.log("GET ALL MESSAGES ", response);
+      console.log("GET ALL MESSAGES", response);
 
       const messages = response.data.chatdetails;
 
       if (Array.isArray(messages)) {
-        // Iterate over each message in the array
         for (let i = 0; i < messages.length; i++) {
-          const message = messages[i].message;
-
-          showMessages(message);
+          const message = messages[i];
+          if (!existingMessages.includes(message.message)) {
+            showMessages(message.message);
+            existingMessages.push(message.message);
+          }
         }
       }
     } catch (err) {
       console.log(err);
     }
   }
-  getmessages();
+
+  // Call the getMessages() function initially
+  getMessages();
+
+  // Call the getMessages() function every 1 second
+  setInterval(getMessages, 1000);
 });
+
+
+
 
 function showMessages(msg) {
   console.log("showMessages function called");

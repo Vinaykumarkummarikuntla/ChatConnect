@@ -7,9 +7,9 @@ exports.authenticate = async (req, res, next) => {
   try {
     const secretkey = process.env.GENERATEACCESSTOKEN
     const token = await req.header('Authorization')
-    console.log("THETOKEN",token)
+    
     const user = jwt.verify(token, secretkey)
-    console.log('userid>>>>>>>>>>..', user.userId)
+    
     User.findByPk(user.userId)
       .then(user => {
         console.log(JSON.stringify(user))

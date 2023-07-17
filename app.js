@@ -40,10 +40,14 @@ app.get('/', (req, res) => {
 const loginandsignupRouter = require('./routes/signupandlogin')
 const chatRouter = require('./routes/chat')
 const groupRouter =require('./routes/group')
+const userSearch = require('./routes/usersearch')
+const userRouter = require('./routes/users')
 
 app.use(loginandsignupRouter)
 app.use(chatRouter)
 app.use(groupRouter)
+app.use(userSearch)
+app.use(userRouter)
 
 group.hasMany(messages) // user has many forgot passwords requests
 messages.belongsTo(group)

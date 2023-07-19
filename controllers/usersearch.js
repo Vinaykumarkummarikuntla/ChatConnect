@@ -16,12 +16,12 @@ exports.getusersearchdetails = async (req, res, next) => {
       },
     });
 
-    const userSearchDetails = data.length > 0 ? {
-      id: data[0].id,
-      username: data[0].username
-    } : null;
+    const userSearchDetails = data.map(user => ({
+      id: user.id,
+      username: user.username,
+    }));
     
-    console.log("user serach DEtails  *********",data,userSearchDetails)
+    console.log("user serach DEtails  *********",userSearchDetails)
     if (data.length == 0) {
       res.status(404).json({ message: "User details not found" });
     } else {

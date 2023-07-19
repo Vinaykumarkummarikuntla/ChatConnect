@@ -1,15 +1,17 @@
-const express = require('express')
+/* eslint-disable max-len */
+const express = require('express');
 
-const router = express.Router()
+const router = express.Router();
 
-const creategroupController = require('../controllers/group')
-const chatController = require('../controllers/chat')
-const userAuthentication = require('../middleware/auth')
+const groupController = require('../controllers/group');
+const chatController = require('../controllers/chat');
+const userAuthentication = require('../middleware/auth');
 
-// create a group 
-router.post('/creategroup',userAuthentication.authenticate,creategroupController.creategroup)
-// specific group messages 
-router.get('/groupchatdetails',userAuthentication.authenticate,chatController.getgroupchatdetails)
+// create a group
+router.post('/creategroup', userAuthentication.authenticate, groupController.creategroup);
+// specific group messages
+router.get('/groupchatdetails', userAuthentication.authenticate, chatController.getgroupchatdetails);
 
+router.get('/getgroupnames', userAuthentication.authenticate, groupController.getgroupnames);
 
-module.exports = router
+module.exports = router;

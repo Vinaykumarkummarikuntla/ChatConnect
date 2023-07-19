@@ -14,4 +14,5 @@ router.get('/groupchatdetails', userAuthentication.authenticate, chatController.
 
 router.get('/getgroupnames', userAuthentication.authenticate, groupController.getgroupnames);
 
+router.post('/groups/addUser', userAuthentication.authenticate, groupController.addUserToGroup);
 module.exports = router;

@@ -33,3 +33,20 @@ exports.getgroupnames = async (req, res, next) => {
     res.status(500).json({error: 'Internal server error'});
   }
 };
+
+
+exports.addUserToGroup = async (req, res, next) => {
+  try {
+    const username = req.body.username;
+    const userid = req.user.userid;
+
+    const data = await group.create({
+      group_name: username,
+      creator_id: userid,
+    });
+    res.status(200).json({groupdetails: data});
+  } catch (err) {
+    logger.error('An error occurred:', err);
+    // console.error(err);
+  }
+};

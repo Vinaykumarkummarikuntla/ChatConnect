@@ -1,15 +1,15 @@
-const express = require('express')
+/* eslint-disable max-len */
+const express = require('express');
 
-const router = express.Router()
+const router = express.Router();
 
-const chatController = require('../controllers/chat')
-const userAuthentication = require('../middleware/auth')
+const chatController = require('../controllers/chat');
+const userAuthentication = require('../middleware/auth');
 
-// post messages 
-router.post('/chatdetails',userAuthentication.authenticate,chatController.chatdetails)
+// post messages
+router.post('/personalmsgs', userAuthentication.authenticate, chatController.chatdetails);
 // get messages
-router.get ('/chatdetails',userAuthentication.authenticate,chatController.getchatdetails)
+router.get('/personalmsgs', userAuthentication.authenticate, chatController.getchatdetails);
 
 
-
-module.exports = router
+module.exports = router;

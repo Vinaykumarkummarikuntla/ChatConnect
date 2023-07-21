@@ -15,4 +15,8 @@ router.get('/groupchatdetails', userAuthentication.authenticate, chatController.
 router.get('/getgroupnames', userAuthentication.authenticate, groupController.getgroupnames);
 
 router.post('/groups/addUser', userAuthentication.authenticate, groupController.addUserToGroup);
+
+// group delete
+router.post('groups/:delete', userAuthentication.authenticate, groupController.deleteGroup);
+
 module.exports = router;

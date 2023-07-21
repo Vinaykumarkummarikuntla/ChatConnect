@@ -50,3 +50,23 @@ exports.addUserToGroup = async (req, res, next) => {
     // console.error(err);
   }
 };
+
+
+exports.deleteGroup = async (req, res, next) => {
+  try {
+    const groupid = req.body.delete;
+    console.log(groupid)
+
+    // Assuming you have a method in your 'groupmodel' to delete a group by its ID
+    const deletedGroup = await group.deleteGroupById(groupid);
+
+    if (!deletedGroup) {
+      return res.status(404).json({ error: 'Group not found' });
+    }
+
+    res.status(200).json({ groupdelete: deletedGroup });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+};

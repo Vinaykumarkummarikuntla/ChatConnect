@@ -1,31 +1,79 @@
 /* eslint-disable max-len */
 /* eslint-disable require-jsdoc */
+// const socket = io()
+const JWT_TOKEN = localStorage.getItem('token');
+
+console.log(JWT_TOKEN);
+const socket = io('http://localhost:3000',
+    {
+      query: {token: JWT_TOKEN},
+    });
 let selectedGroup = null;
 let selectedUser = null;
 
 // TODO PERSONAL MESSSAGES STORING
+// async function personalMessagesToDb(event) {
+//   event.preventDefault();
+//   const msg = document.getElementById('message').value;
+//   const userId = selectedUser;
+//   console.log('msg', msg, userId);
+//   const obj = {msg};
+//   const token = localStorage.getItem('token');
+
+//   try {
+//     const response = await axios.post(
+//         'http://localhost:3000/personalmsgs',
+//         obj,
+//         {
+//           headers: {Authorization: token},
+//         },
+//     );
+//     console.log(response.data, 'FULLDATA');
+//     console.log(response.data.chatdetails.message, 'MESSAGE');
+//   } catch (err) {
+//     console.log(err);
+//   }
+// }
+
+function formatTime(timestamp) {
+  const options = {hour: 'numeric', minute: 'numeric', hour12: true};
+  return new Date(timestamp).toLocaleTimeString(undefined, options);
+}
+
+
+
+
 async function personalMessagesToDb(event) {
   event.preventDefault();
   const msg = document.getElementById('message').value;
-  const userId = selectedUser;
-  console.log('msg', msg, userId);
-  const obj = {msg};
-  const token = localStorage.getItem('token');
+  const username = selectedUser;
 
-  try {
-    const response = await axios.post(
-        'http://localhost:3000/personalmsgs',
-        obj,
-        {
-          headers: {Authorization: token},
-        },
-    );
-    console.log(response.data, 'FULLDATA');
-    console.log(response.data.chatdetails.message, 'MESSAGE');
-  } catch (err) {
-    console.log(err);
-  }
+  console.log('msg', msg, username);
+
+  const timestamp = new Date().toISOString();
+  const formattedTime = formatTime(timestamp);
+  console.log(formattedTime);
+  const chatDetails = {username, msg, formattedTime};
+
+  socket.emit('send-chat-message', chatDetails);
 }
+
+socket.on('chat-message', (receivedMessages) => {
+  console.log("receieved messgaes ",receivedMessages);
+
+  for (const key in receivedMessages) {
+    if (receivedMessages.hasOwnProperty(key)) {
+      const message = receivedMessages[key];
+      const {formattedTime, msg, username} = message;
+      console.log(username, msg, formattedTime);
+      // Call the showMessages function for each message separately
+      showMessages(username, msg, formattedTime);
+    }
+  }
+  // Display the received message in the console
+  // Call a function to display the message in the frontend UI (You can use `showMessages` function here)
+});
+
 
 // TODO GROUP MESSSAGES STORING
 async function groupMessagesToDb(event, selectedGroup) {
@@ -48,7 +96,7 @@ async function groupMessagesToDb(event, selectedGroup) {
   }
 }
 
-// TODO RETRIEVING MESSAGES SHOWING ON SCREEN  
+// TODO RETRIEVING MESSAGES SHOWING ON SCREEN UI CHAT
 // window.addEventListener('DOMContentLoaded', () => {
 //   const token = localStorage.getItem('token');
 //   const existingMessages = [];
@@ -292,16 +340,30 @@ async function searchUsers() {
   }
 }
 
+function handleUsernameClick(username) {
+  setSelectedUser(username);
+  UserChatMessages(username);
+}
+
+
+function setSelectedUser(username) {
+  selectedUser = username;
+  console.log('Connected to the server',selectedUser);
+  // Join the room with the user's username
+  socket.emit('join-room', selectedUser);
+  console.log('SELECTED USER', selectedUser);
+}
+
+
 // TODO ADDING USERNAMES ON SCREEN
 function addUsernameToScreen(username, userId) {
   const parentElement = document.getElementsByClassName('group-list')[0];
 
   childHTML = `
     <li class="group-item">
-      <a href="#" class="group-name" onclick="UserChatMessages(${userId})">${username}</a>
+      <a href="#" class="group-name" onclick="handleUsernameClick('${username}')">${username}</a>
     </li>
   `;
-
   const storedUsernames = localStorage.getItem('usernames');
   const usernames = storedUsernames ? JSON.parse(storedUsernames) : [];
   usernames.push(username);
@@ -319,10 +381,12 @@ window.addEventListener('DOMContentLoaded', () => {
   usernames.forEach((username) => {
     const childHTML = `
       <li class="group-item">
-        <a href="#" class="group-name">${username}</a>
+        <a href="#" class="group-name" onclick="handleUsernameClick('${username}')>${username}</a>
       </li>
     `;
     parentElement.innerHTML += childHTML;
+
+    console.log('USERNAMES PRINTING WHEN CLICK USERNAMES', `${username}`);
   });
 });
 
@@ -447,26 +511,28 @@ async function performUserSearch(searchQuery) {
 
 
 // TODO RETREIVING PERSONAL CHAT MESSAGES
-async function UserChatMessages(userId) {
-  console.log("MEHTODCALLED")
-  const token = localStorage.getItem('token');
-  let userPersonalChatResponse = [];
-  selectedUser = userId;
-  const userid = {userId};
-  try {
-    const response = await axios.get(
-        'http://localhost:3000/personalmsgs', userid,
-        {
-          headers: {Authorization: token},
-        },
-    );
-    userPersonalChatResponse = response.data;
-    console.log(response.data, 'userPersonalChatResponseAPIDATA');
-  } catch (err) {
-    console.log(err);
-  }
-  return userPersonalChatResponse;
-  showMessages(username, msg, timestamp)
+// ! ASYNC REMOVED HERE
+function UserChatMessages(username) {
+  console.log('no msg these user previously');
+  // console.log('MEHTODCALLED');
+  // const token = localStorage.getItem('token');
+  // let userPersonalChatResponse = [];
+  // selectedUser = username;
+  // const userid = {userId};
+  // try {
+  //   const response = await axios.get(
+  //       'http://localhost:3000/personalmsgs', userid,
+  //       {
+  //         headers: {Authorization: token},
+  //       },
+  //   );
+  //   userPersonalChatResponse = response.data;
+  //   console.log(response.data, 'userPersonalChatResponseAPIDATA');
+  // } catch (err) {
+  //   console.log(err);
+  // }
+  // return userPersonalChatResponse;
+  // showMessages(username, msg, timestamp);
 }
 // TODO GET GROUP NAMES
 async function getGroupNames() {
@@ -488,3 +554,37 @@ async function getGroupNames() {
 }
 
 console.log('GROUP NAME SELECTED', selectedGroup);
+
+// TODO DELETE GROUP 
+async function deleteGroup(groupId) {
+  
+  const token = localStorage.getItem('token');
+
+  try {
+    const response = await axios.post(
+        `http://localhost:3000/groups/delete={groupId}`,
+        obj,
+        {
+          headers: {Authorization: token},
+        },
+    );
+    console.log(response);
+    
+    deleteGroupUI(groupId)
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+//  TODO DELETE GROUP UI
+async function deleteGroupUI(groupname) {
+  const groupList = document.querySelector('.group-list');
+ const groupItems = groupList.querySelectorAll('.group-item');
+  for (const groupItem of groupItems) {
+    const groupNameElement = groupItem.querySelector('a');
+    if (groupNameElement.textContent === groupname) {
+      groupItem.remove();
+      break; // Break out of the loop once the group is removed
+    }
+  }
+}

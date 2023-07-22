@@ -22,6 +22,7 @@ const group = sequelize.define('groups', {
     type: Sequelize.INTEGER,
     allowNull: false,
   },
+
 });
 
 module.exports = group;

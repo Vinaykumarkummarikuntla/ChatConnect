@@ -9,14 +9,18 @@ const userAuthentication = require('../middleware/auth');
 
 // create a group
 router.post('/creategroup', userAuthentication.authenticate, groupController.creategroup);
+
 // specific group messages
-router.get('/groupchatdetails', userAuthentication.authenticate, chatController.getgroupchatdetails);
+router.get('/groupchatdetails/:groupid', userAuthentication.authenticate, groupController.groupDetails);
 
 router.get('/getgroupnames', userAuthentication.authenticate, groupController.getgroupnames);
 
 router.post('/groups/addUser', userAuthentication.authenticate, groupController.addUserToGroup);
 
 // group delete
-router.post('groups/:delete', userAuthentication.authenticate, groupController.deleteGroup);
+router.delete('/groups/:groupId', userAuthentication.authenticate, groupController.deleteGroup);
+
+// user removing from the group
+router.delete('/group/:groupid/user/:username', userAuthentication.authenticate, groupController.groupDeleteUser);
 
 module.exports = router;

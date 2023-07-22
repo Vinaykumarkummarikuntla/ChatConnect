@@ -20,20 +20,14 @@ const {Server} = require('socket.io');
 const io = new Server(server);
 
 app.use(cors());
-// app.use(cors({
-//   origin: ['http://localhost:3000']
-// }));
+
 
 app.use(
     '/socket.io',
     express.static(path.join(__dirname, 'node_modules/socket.io/client-dist')),
 );
 
-// // Allow requests from localhost:3000
-// app.use((req, res, next) => {
-//   res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
-//   next();
-// });
+
 
 // const morgan = require('morgan')
 const userAuthentication = require('./middleware/auth');
@@ -45,9 +39,7 @@ messages = require('./models/chatmodel');
 group = require('./models/groupmodel');
 
 // Middleware setup
-// app.use(cors({ origin: 'http://localhost:3000'}));
-// app.use(helmet())
-// app.use(morgan('combined', { stream: accessLogStream }))
+
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 

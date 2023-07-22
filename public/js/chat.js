@@ -4,12 +4,12 @@
 const JWT_TOKEN = localStorage.getItem('token');
 
 console.log(JWT_TOKEN);
-const socket = io('http://localhost:3000',
-    {
-      query: {token: JWT_TOKEN},
-    });
+const socket = io('http://localhost:3000', {
+  query: {token: JWT_TOKEN},
+});
 let selectedGroup = null;
 let selectedUser = null;
+let groupSelectedInformation = null;
 
 // TODO PERSONAL MESSSAGES STORING
 // async function personalMessagesToDb(event) {
@@ -40,9 +40,6 @@ function formatTime(timestamp) {
   return new Date(timestamp).toLocaleTimeString(undefined, options);
 }
 
-
-
-
 async function personalMessagesToDb(event) {
   event.preventDefault();
   const msg = document.getElementById('message').value;
@@ -59,7 +56,7 @@ async function personalMessagesToDb(event) {
 }
 
 socket.on('chat-message', (receivedMessages) => {
-  console.log("receieved messgaes ",receivedMessages);
+  console.log('receieved messgaes ', receivedMessages);
 
   for (const key in receivedMessages) {
     if (receivedMessages.hasOwnProperty(key)) {
@@ -73,7 +70,6 @@ socket.on('chat-message', (receivedMessages) => {
   // Display the received message in the console
   // Call a function to display the message in the frontend UI (You can use `showMessages` function here)
 });
-
 
 // TODO GROUP MESSSAGES STORING
 async function groupMessagesToDb(event, selectedGroup) {
@@ -209,10 +205,10 @@ function showGroupName(group, groupId) {
   const parentElement = document.getElementsByClassName('group-list')[0];
   childHTML = `
   <li class="group-item">
-    <a href="#" class="group-name" onclick="groupChatMessages(${groupId})" >${group}></a>
-    <button class="dropbtn" onclick="showOptions(${groupId})">options</button>
+    <a href="#" class="group-name" onclick="groupChatMessages(${groupId})">${group}<button class="dropbtn" onclick="showOptions(${groupId})">EDIT GROUP</button></a>
     <dialog id="optionsDialog">
-    <a href="#" onclick="deleteGroup(${groupId})">Delete Group</a>
+    <a href="#"onclick="deleteGroup(this)">Delete Group</a>
+    // <a href="#" onclick="deleteGroup('${groupId}', '${group}')">Delete Group</a>
     <div id="optionsSection">
     <h4>Users:</h4>
     <ul id="userList"></ul>
@@ -220,29 +216,31 @@ function showGroupName(group, groupId) {
     <input type="text" id="searchInput2" placeholder="Search User">
       <button onclick="searchUsers2()">Search</button>
       <div id="searchResults"></div>
-    <button onclick="closeOptionsDialog()">Close</button>
+    <button id="closebutton" onclick="closeOptionsDialog()">Close</button>
   </dialog>
 </li>
 `;
 
   parentElement.innerHTML += childHTML;
 
-  // Retrieve stored group IDs from local storage
-  const storedGroupIds = localStorage.getItem('groupIds');
-  const groupIds = storedGroupIds ? JSON.parse(storedGroupIds) : [];
+  // // Retrieve stored group IDs from local storage
+  // const storedGroupIds = localStorage.getItem('groupIds');
+  // const groupIds = storedGroupIds ? JSON.parse(storedGroupIds) : [];
 
-  // Add the new group ID to the array
-  groupIds.push(groupId);
+  // // Add the new group ID to the array
+  // groupIds.push(groupId);
 
-  // Save the updated group IDs back to local storage
-  localStorage.setItem('groupIds', JSON.stringify(groupIds));
+  // // Save the updated group IDs back to local storage
+  // localStorage.setItem('groupIds', JSON.stringify(groupIds));
 }
 
 // TODO DIALOG BOX OPEN
-function showOptions(groupId) {
-  const dialog = document.getElementById('optionsDialog');
-  dialog.showModal();
-}
+// function showOptions(groupId) {
+//   console.log(groupId);
+//   const dialog = document.getElementById('optionsDialog');
+
+//   dialog.showModal();
+// }
 // TODO CLOSE DIALOG BOX
 function closeOptionsDialog() {
   const dialog = document.getElementById('optionsDialog');
@@ -255,23 +253,22 @@ function Options(username, userid) {
   const optionsSection = document.getElementById('optionsSection');
   const usernameInput = document.getElementById('userbutton');
 
-
   if (username) {
     const userList = document.getElementById('userList');
     console.log('userlist', userList);
     const listItem = document.createElement('li');
     listItem.textContent = username;
 
-    const makeAdminButton = document.createElement('button');
-    makeAdminButton.textContent = 'Make Admin';
-    makeAdminButton.addEventListener('click', () => makeAdmin(username));
-    console.log(makeAdminButton);
+    // const makeAdminButton = document.createElement('button');
+    // makeAdminButton.textContent = 'Make Admin';
+    // makeAdminButton.addEventListener('click', () => makeAdmin(username));
+    // console.log(makeAdminButton);
 
     const deleteUserButton = document.createElement('button');
     deleteUserButton.textContent = 'Delete User';
     deleteUserButton.addEventListener('click', () => deleteUser(username));
 
-    listItem.appendChild(makeAdminButton);
+    // listItem.appendChild(makeAdminButton);
     listItem.appendChild(deleteUserButton);
 
     userList.appendChild(listItem);
@@ -281,6 +278,7 @@ function Options(username, userid) {
   // showOptions();
 }
 
+
 // TODO RETRIEVING GROUP CHAT MESSAGES
 async function groupChatMessages(groupId) {
   const token = localStorage.getItem('token');
@@ -288,15 +286,57 @@ async function groupChatMessages(groupId) {
   selectedGroup = groupId;
   console.log('GROUP NAME SELECTED ()()()()()()()()()(()(()', selectedGroup);
 
-
   try {
-    // const response = await axios.get(
-    //   `http://localhost:3000/groupchatdetails?groupid=${groupId}`,
-    //   {
-    //     headers: { Authorization: token },
-    //   }
-    // );
-    // console.log(response);
+    const response = await axios.get(
+        `http://localhost:3000/groupchatdetails/${groupId}`,
+        {
+          headers: {Authorization: token},
+        },
+    );
+    console.log(response.data.groupDetails);
+    const groupMembers = await response.data.groupMembers;
+    groupSelectedInformation = await response.data.groupDetails;
+
+    console.log(groupSelectedInformation, 'group response attached to variable');
+
+
+    // Update the dialog content using the selectedGroup information
+    const dialogContent = document.getElementById('optionsSection');
+    dialogContent.innerHTML = `
+    <h4>Group ID: ${groupSelectedInformation.group_id}</h4>
+    <h4>Group Name: ${groupSelectedInformation.group_name}</h4>
+    <a href="#" onclick="deleteGroup(${groupSelectedInformation.group_id})">Delete Group</a>
+        <div id="optionsSection">
+        <h4>Users:</h4>
+        <ul id="userList"> </ul>
+
+        </div>
+        <input type="text" id="searchInput2" placeholder="Search User">
+        <button onclick="searchUsers2()">Search</button>
+        <div id="searchResults"></div>
+        <button onclick="closeOptionsDialog()">Close</button>
+    <!-- Add other dialog content here -->
+  `;
+
+    const deleteUserButton = document.createElement('button');
+    deleteUserButton.textContent = 'Delete User';
+    deleteUserButton.addEventListener('click', () => deleteUser(username, groupSelectedInformation.group_id));
+    const userList = document.getElementById('userList');
+
+    // Loop through the groupMembers array and add each username to the userList
+    groupMembers.forEach((username) => {
+      const listItem = document.createElement('li');
+      listItem.textContent = username;
+
+      const deleteUserButton = document.createElement('button');
+      deleteUserButton.textContent = 'Delete User';
+      deleteUserButton.addEventListener('click', () => deleteUser(username,groupSelectedInformation.group_id));
+      const userList = document.getElementById('userList');
+      userList.appendChild(listItem);
+      userList.appendChild(deleteUserButton);
+    });
+
+
     const msg1 = 'group message checking';
     const username = 'MOHAN';
     const time = 8;
@@ -329,7 +369,6 @@ async function searchUsers() {
       console.log(`ID: ${user.id}`);
     });
 
-
     //  if (users.username && users.id === 'undefined') {
     //   const noResultsMessage = document.createElement("p");
     //     noResultsMessage.textContent = "No users found.";
@@ -345,15 +384,13 @@ function handleUsernameClick(username) {
   UserChatMessages(username);
 }
 
-
 function setSelectedUser(username) {
   selectedUser = username;
-  console.log('Connected to the server',selectedUser);
+  console.log('Connected to the server', selectedUser);
   // Join the room with the user's username
   socket.emit('join-room', selectedUser);
   console.log('SELECTED USER', selectedUser);
 }
-
 
 // TODO ADDING USERNAMES ON SCREEN
 function addUsernameToScreen(username, userId) {
@@ -392,9 +429,9 @@ window.addEventListener('DOMContentLoaded', () => {
 
 // TODO PAGE REFRESH LOAD GROUP NAMES
 window.addEventListener('DOMContentLoaded', async () => {
+  createOptionsDialog();
   await loadGroupNames();
 });
-
 
 // TODO LOAD GROUP NAMES
 async function loadGroupNames() {
@@ -404,32 +441,41 @@ async function loadGroupNames() {
   const parentElement = document.getElementsByClassName('group-list')[0];
 
   groupNames.forEach((group) => {
-    console.log(group.groupId, group.groupName, 'Checking gttting gropnaem and id ');
+    console.log(
+        group.groupId,
+        group.groupName,
+        'Checking getting correct group id and name ',
+    );
     const childHTML = `
       <li class="group-item">
         <a href="#" class="group-name" onclick="groupChatMessages(${group.groupId})">${group.groupName}</a>
-        <button class="dropbtn" onclick="showOptions(${group.groupId})">options</button>
-        <dialog id="optionsDialog">
-          <a href="#" onclick="deleteGroup(${group.groupId})">Delete Group</a>
-          <div id="optionsSection">
-            <h4>Users:</h4>
-            <ul id="userList"></ul>
-          </div>
-          <input type="text" id="searchInput2" placeholder="Search User">
-          <button onclick="searchUsers2()">Search</button>
-          <div id="searchResults"></div>
-          <button onclick="closeOptionsDialog()">Close</button>
-        </dialog>
+        <button class="dropbtn" onclick="optionsDialog(${group.groupId})">EDIT GROUP</button>
       </li>
     `;
 
     parentElement.innerHTML += childHTML;
   });
-};
+}
+// <li class="group-item">
+//   <a href="#" class="group-name" onclick="groupChatMessages(${group.groupId})">${group.groupName}
+//   <button class="dropbtn" onclick="showOptions(${group.groupId})">EDIT GROUP</button></a>
+//   <dialog id="optionsDialog">
+//   <a href="#" onclick="deleteGroup(${group.groupId}, '${group.groupName}')">Delete Group</a>
+//     // <div id="optionsSection">
+//     //   <h4>Users:</h4>
+//     //   <ul id="userList"></ul>
+//     // </div>
+//     // <input type="text" id="searchInput2" placeholder="Search User">
+//     // <button onclick="searchUsers2()">Search</button>
+//     // <div id="searchResults"></div>
+//     // <button onclick="closeOptionsDialog()">Close</button>
+//   </dialog>
+// </li>
+
 
 // TODO SEARCH USERS IN GROUP
 async function searchUsers2() {
-  const searchInput = document.getElementById('searchInput2');
+  const searchInput2 = document.getElementById('searchInput2');
 
   const searchQuery = searchInput2.value.trim();
   console.log('OR', searchQuery);
@@ -444,12 +490,14 @@ async function searchUsers2() {
       const resultElement = document.createElement('div');
       resultElement.textContent = user.username;
       resultElement.onclick = () => {
+        // CREATING OPTIONS MAKE ADMIN AND DELETE USER
         Options(user.username, user.id);
+        // ADDING USERNAME TO GROUP DB
         addUserToGroupDB(user.username, user.id);
-        searchResultsContainer.innerHTML = ''; // Clear the search results from the screen
+        searchResultsContainer.innerHTML = '';
       };
       searchResultsContainer.appendChild(resultElement);
-    } );
+    });
   }
 }
 
@@ -466,7 +514,10 @@ async function performUserSearch(searchQuery) {
           headers: {Authorization: token},
         },
     );
-    console.log('userserach return response --->', response.data.usersearchdetails);
+    console.log(
+        'userserach return response --->',
+        response.data.usersearchdetails,
+    );
     searchResponse = response.data.usersearchdetails;
     response.data.usersearchdetails.forEach((user) => {
       console.log(`Username: ${user.username}`);
@@ -509,7 +560,6 @@ async function performUserSearch(searchQuery) {
 // // Call the getUsers function to populate the dropdown on page load
 // window.addEventListener("DOMContentLoaded", getUsers);
 
-
 // TODO RETREIVING PERSONAL CHAT MESSAGES
 // ! ASYNC REMOVED HERE
 function UserChatMessages(username) {
@@ -539,12 +589,9 @@ async function getGroupNames() {
   const token = localStorage.getItem('token');
   let groupResponse = [];
   try {
-    const response = await axios.get(
-        'http://localhost:3000/getgroupnames',
-        {
-          headers: {Authorization: token},
-        },
-    );
+    const response = await axios.get('http://localhost:3000/getgroupnames', {
+      headers: {Authorization: token},
+    });
     groupResponse = response.data.groupDetails;
     console.log(response.data, 'GROUPDETAILSAPIDATA');
   } catch (err) {
@@ -555,36 +602,86 @@ async function getGroupNames() {
 
 console.log('GROUP NAME SELECTED', selectedGroup);
 
-// TODO DELETE GROUP 
+// TODO DELETE GROUP
 async function deleteGroup(groupId) {
-  
   const token = localStorage.getItem('token');
-
+  console.log('DELETED GROUP ID', groupId);
   try {
-    const response = await axios.post(
-        `http://localhost:3000/groups/delete={groupId}`,
-        obj,
+    const response = await axios.delete(
+        `http://localhost:3000/groups/${groupId}`,
         {
           headers: {Authorization: token},
         },
     );
     console.log(response);
+
     
-    deleteGroupUI(groupId)
   } catch (err) {
     console.log(err);
   }
 }
 
-//  TODO DELETE GROUP UI
-async function deleteGroupUI(groupname) {
-  const groupList = document.querySelector('.group-list');
- const groupItems = groupList.querySelectorAll('.group-item');
-  for (const groupItem of groupItems) {
-    const groupNameElement = groupItem.querySelector('a');
-    if (groupNameElement.textContent === groupname) {
-      groupItem.remove();
-      break; // Break out of the loop once the group is removed
-    }
+
+function optionsDialog(groupId) {
+  console.log('method called with groupId:', groupId);
+  const dialog = document.getElementById('optionsDialog');
+  dialog.showModal();
+}
+
+// Function to create the options dialog element and add it to the DOM
+function createOptionsDialog() {
+  const dialogElement = document.createElement('dialog');
+  dialogElement.id = 'optionsDialog';
+
+  // Add the dialog content here, you can customize it as per your requirements
+  const dialogContent = document.createElement('div');
+  dialogContent.id = 'optionsSection';
+  dialogContent.innerHTML = `
+    <h4>Group ID:</h4>
+    <h4>Group Name:</h4>
+    `;
+
+  dialogElement.appendChild(dialogContent);
+  document.body.appendChild(dialogElement);
+}
+console.log('groupSelectedInformation', groupSelectedInformation);
+
+
+async function addUserToGroupDB(username, userId) {
+  const groupId = groupSelectedInformation.group_id;
+  console.log('I AM SENDING THIS GROUP ID WHILE ADDING USER TO GROUPDB', groupId);
+  const user = {username, userId, groupId};
+  const token = localStorage.getItem('token');
+  console.log('ADDING USER TO GROUP ', user);
+  try {
+    const response = await axios.post(
+        `http://localhost:3000/groups/addUser`, {user},
+        {
+          headers: {Authorization: token},
+        },
+    );
+    console.log(response);
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+
+async function deleteUser(username,groupid) {
+  console.log(username,groupid, 'deleted user name from the group');
+ 
+  const token = localStorage.getItem('token');
+  const deleteUser = await { username,groupid};
+  console.log('DELETING USER FROM THE  GROUP ', deleteUser);
+  try {
+    const response = await axios.delete(
+        `http://localhost:3000/group/${deleteUser.groupid}/user/${deleteUser.username}`,
+        {
+          headers: {Authorization: token},
+        },
+    );
+    console.log(response);
+  } catch (err) {
+    console.log(err);
   }
 }

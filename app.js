@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 require('dotenv').config();
 const path = require('path');
 const express = require('express');
@@ -26,7 +27,6 @@ app.use(
     '/socket.io',
     express.static(path.join(__dirname, 'node_modules/socket.io/client-dist')),
 );
-
 
 
 // const morgan = require('morgan')
@@ -76,7 +76,9 @@ app.use(userRouter);
 group.hasMany(messages); // user has many forgot passwords requests
 messages.belongsTo(group);
 
-let senderUsername;
+
+const activeUsers = [];
+let authenticatedUsername;
 io.use(async (socket, next) => {
   try {
     const secretkey = process.env.GENERATEACCESSTOKEN;
@@ -85,13 +87,19 @@ io.use(async (socket, next) => {
     // Verify the JWT token and extract user information
     const user = jwt.verify(token, secretkey);
     const foundUser = await User.findByPk(user.userId);
-    senderUsername = foundUser.username;
+    authenticatedUsername = foundUser.username;
 
+    if (authenticatedUsername) {
+      activeUsers.push({username: authenticatedUsername, socketId: socket.id});
+    }
 
     // Attach the user information to the socket object for future use
     // socket.user = user;
-    console.log(user, 'SOCKET USERNAME', senderUsername);
+    console.log(user, 'SOCKET USERNAME', authenticatedUsername);
+
     console.log('USER IS AUTHENTICATED');
+    console.log('ACTIE USERE ARE', activeUsers);
+
     return next();
   } catch (err) {
     console.log(err);
@@ -102,33 +110,54 @@ io.use(async (socket, next) => {
 let recipientUsername;
 io.on('connection', (socket) => {
   console.log('a user connected');
+  // PERSON TO PERSON MESSAGE
+  socket.on('send-chat-message', (chatDetails) => {
+    const {recipientUsername, msg, formattedTime} = chatDetails;
+    console.log('Received chat message:', chatDetails);
+    const recipientUser = activeUsers.find((user) => user.username === recipientUsername);
+    if (recipientUser) {
+      const recipientSocketId = recipientUser.socketId;
+      const recipientSocketName = recipientUser.username;
 
-  socket.on('join-room', (username) => {
-    recipientUsername = username;
-    // Get the ID of the recipient's socket
-    socket.join(username.replace(' ', '-'));
-    console.log(`User ${username} joined the room with ID ${socket.id}`);
-
-
-    socket.on('send-chat-message', (message) => {
-      console.log('message incoming');
-      console.log(message);
-      
-      message.senderUsername = senderUsername;
-      console.log(message,"after sendusername added")
-      if (recipientUsername) {
-        io.to(recipientUsername.replace(' ', '-')).emit('chat-message', {
-          message,
-        });
-        console.log('message sent from the backend to frontend');
-      } else {
-        console.log('Recipient username is not set or invalid.');
-      }
-    });
-  //   // Ensure we have the recipient's username before sending the message
+      // Send the message to the recipient using their socket ID.
+      io.to(recipientSocketId).emit('chat-message', chatDetails);
+      console.log(`Sent message to ${recipientSocketName} with socket ID ${recipientSocketId}`);
+    } else {
+      console.log(`Recipient ${recipientSocketName} not found in active users.`);
+      // Handle the case when the recipient is not found in active users.
+    }
   });
+
+  // GROUP MESSAGES
+  let activeGroupMembers = null;
+  socket.on('send-group-message', (groupMessage) => {
+    const {msg, selectedGroup, groupMembers, formattedTime} = groupMessage;
+    console.log('Received group message:', groupMessage);
+
+    // Filter active group members from the groupMembers array
+
+    activeGroupMembers = groupMembers.map((memberUsername) =>
+    activeUsers.find((user) => user.username === memberUsername)
+  );
+    console.log(activeGroupMembers,"active group memebers")
+
+    // Loop through active group members and send the group message to each member
+    activeGroupMembers.forEach((member) => {
+      const recipientSocketId = member.socketId;
+      // Send the group message to the recipient using their socket ID.
+      // io.to(recipientSocketId).emit('chat-message', chatDetails);
+      io.to(recipientSocketId).emit('group-chat-message',groupMessage );
+      console.log(`Sent group message to ${member.username} with socket ID ${recipientSocketId}`);
+    });
+});
+
+
   socket.on('disconnect', () => {
-    socket.broadcast.emit('user-disconnected');
+    const index = activeUsers.indexOf(authenticatedUsername);
+    if (index !== -1) {
+      activeUsers.splice(index, 1);
+      console.log('User disconnected. Removed from activeUsers:', authenticatedUsername);
+    }
   });
 });
 

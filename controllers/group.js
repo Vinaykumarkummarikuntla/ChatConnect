@@ -7,16 +7,15 @@ const User = require('../models/signupmodel');
 // TODO CREAATE GROUP
 exports.creategroup = async (req, res, next) => {
   try {
-    const groupId = req.body.groupId;
-
-
+    const groupname = req.body.groupname;
     const data = await group.create({
       group_name: groupname,
-      creator_id: userid,
+      creator_id: req.user.id,
     });
     res.status(200).json({groupdetails: data});
   } catch (err) {
     logger.error('An error occurred:', err);
+    res.status(500).json({error: 'Internal server error'});
     // console.error(err);
   }
 };
@@ -86,7 +85,7 @@ exports.groupDetails = async (req, res, next) => {
 
     // Find the associated userIds from the group_user table
     const groupUsers = await groupUser.findAll({
-      where: {id: groupId},
+      where: {group_id: groupId},
     });
     console.log(groupUsers, 'groupUSERS WHO ARE THE PART OF THE GROUP ----------------------');
 

@@ -10,6 +10,7 @@ const socket = io('http://localhost:3000', {
 let selectedGroup = null;
 let selectedUser = null;
 let groupSelectedInformation = null;
+let groupMembers = null;
 
 // TODO PERSONAL MESSSAGES STORING
 // async function personalMessagesToDb(event) {
@@ -43,54 +44,62 @@ function formatTime(timestamp) {
 async function personalMessagesToDb(event) {
   event.preventDefault();
   const msg = document.getElementById('message').value;
-  const username = selectedUser;
+  const recipientUsername = selectedUser;
 
-  console.log('msg', msg, username);
+  console.log('msg', msg, recipientUsername);
 
   const timestamp = new Date().toISOString();
   const formattedTime = formatTime(timestamp);
   console.log(formattedTime);
-  const chatDetails = {username, msg, formattedTime};
+  const chatDetails = {recipientUsername, msg, formattedTime};
 
   socket.emit('send-chat-message', chatDetails);
 }
 
-socket.on('chat-message', (receivedMessages) => {
-  console.log('receieved messgaes ', receivedMessages);
+socket.on('chat-message', (receivedMessage) => {
+  console.log('Received message:', receivedMessage);
 
-  for (const key in receivedMessages) {
-    if (receivedMessages.hasOwnProperty(key)) {
-      const message = receivedMessages[key];
-      const {formattedTime, msg, username} = message;
-      console.log(username, msg, formattedTime);
-      // Call the showMessages function for each message separately
-      showMessages(username, msg, formattedTime);
-    }
-  }
-  // Display the received message in the console
-  // Call a function to display the message in the frontend UI (You can use `showMessages` function here)
+  // Access the individual properties of the received message
+  const {recipientUsername, msg, formattedTime} = receivedMessage;
+  console.log('Recipient:', recipientUsername);
+  console.log('Message:', msg);
+  console.log('Formatted Time:', formattedTime);
+
+  // Call the showMessages function here with the received message details
+  showMessages(recipientUsername, msg, formattedTime);
 });
 
+
 // TODO GROUP MESSSAGES STORING
-async function groupMessagesToDb(event, selectedGroup) {
+async function groupMessagesToDb(event) {
   event.preventDefault();
   const msg = document.getElementById('message').value;
-  console.log('msg', msg);
-  const obj = {msg, selectedGroup};
-  const token = localStorage.getItem('token');
-  try {
-    const response = await axios.post(
-        'http://localhost:3000/chatdetails',
-        obj,
-        {
-          headers: {Authorization: token},
-        },
-    );
-    console.log(response);
-  } catch (err) {
-    console.log(err);
-  }
+  const timestamp = new Date().toISOString();
+  const formattedTime = formatTime(timestamp);
+  console.log(groupMembers, 'sendig group member to post a msg to group');
+  console.log(selectedGroup, 'group sending to a post a msg to group');
+  console.log('WHILE SENDING GROUP MESSAGE', msg, selectedGroup, groupMembers);
+  const groupMessage = {msg, selectedGroup, groupMembers, formattedTime};
+
+  socket.emit('send-group-message', groupMessage);
 }
+// socket.on('group-chat-message', (groupMessage) => {
+//   console.log(groupMessage,"froend group message")
+//   // const { msg, selectedGroup, formattedTime } = groupMessage;
+//   // showMessages( , msg, formattedTime);
+
+// })
+
+socket.on('group-chat-message', (groupMessage) => {
+  alert(groupMessage.msg)
+  
+  console.log('group message frontend part', groupMessage);
+  const {msg, selectedGroup, formattedTime} = groupMessage;
+  const msgsendername = 'Group';
+
+  showMessages(msgsendername, msg, formattedTime);
+});
+
 
 // TODO RETRIEVING MESSAGES SHOWING ON SCREEN UI CHAT
 // window.addEventListener('DOMContentLoaded', () => {
@@ -293,11 +302,12 @@ async function groupChatMessages(groupId) {
           headers: {Authorization: token},
         },
     );
-    console.log(response.data.groupDetails);
-    const groupMembers = await response.data.groupMembers;
+
+    groupMembers = await response.data.groupMembers;
     groupSelectedInformation = await response.data.groupDetails;
 
     console.log(groupSelectedInformation, 'group response attached to variable');
+    console.log(groupMembers, 'group Members');
 
 
     // Update the dialog content using the selectedGroup information
@@ -330,17 +340,11 @@ async function groupChatMessages(groupId) {
 
       const deleteUserButton = document.createElement('button');
       deleteUserButton.textContent = 'Delete User';
-      deleteUserButton.addEventListener('click', () => deleteUser(username,groupSelectedInformation.group_id));
+      deleteUserButton.addEventListener('click', () => deleteUser(username, groupSelectedInformation.group_id));
       const userList = document.getElementById('userList');
       userList.appendChild(listItem);
       userList.appendChild(deleteUserButton);
     });
-
-
-    const msg1 = 'group message checking';
-    const username = 'MOHAN';
-    const time = 8;
-    showMessages(username, msg1, time);
   } catch (err) {
     console.log(err);
   }
@@ -614,8 +618,6 @@ async function deleteGroup(groupId) {
         },
     );
     console.log(response);
-
-    
   } catch (err) {
     console.log(err);
   }
@@ -667,11 +669,11 @@ async function addUserToGroupDB(username, userId) {
 }
 
 
-async function deleteUser(username,groupid) {
-  console.log(username,groupid, 'deleted user name from the group');
- 
+async function deleteUser(username, groupid) {
+  console.log(username, groupid, 'deleted user name from the group');
+
   const token = localStorage.getItem('token');
-  const deleteUser = await { username,groupid};
+  const deleteUser = await {username, groupid};
   console.log('DELETING USER FROM THE  GROUP ', deleteUser);
   try {
     const response = await axios.delete(

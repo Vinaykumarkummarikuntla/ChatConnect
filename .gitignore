@@ -1,2 +1,18 @@
 .env
+
+
+# Ignore .env file
+.env
+
+# Ignore ESLint configuration files
 .eslintrc.json
+.eslintrc.js
+
+# Ignore error logs
+.error.log
+
+# Ignore the node_modules folder
+node_modules/
+
+# Ignore the .vscode folder
+.vscode/

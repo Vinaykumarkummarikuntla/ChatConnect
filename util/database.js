@@ -1,6 +1,4 @@
 require('dotenv').config();
-const path = require('path');
-const fs = require('fs');
 const Sequelize = require('sequelize');
 
 // TODO Database Connection

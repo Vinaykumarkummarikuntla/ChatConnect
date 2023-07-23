@@ -13,15 +13,11 @@ const socketIO = require('socket.io');
 
 // make sure you keep this order
 const app = express();
-// const server = http.createServer(app);
-// const io = socketIO(server);
-
 const server = http.createServer(app);
 const {Server} = require('socket.io');
 const io = new Server(server);
 
 app.use(cors());
-
 
 app.use(
     '/socket.io',
@@ -29,17 +25,13 @@ app.use(
 );
 
 
-// const morgan = require('morgan')
 const userAuthentication = require('./middleware/auth');
-
-// const io = require('socket.io')(4000)
 
 // Import models
 messages = require('./models/chatmodel');
 group = require('./models/groupmodel');
 
 // Middleware setup
-
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
@@ -96,10 +88,7 @@ io.use(async (socket, next) => {
     // Attach the user information to the socket object for future use
     // socket.user = user;
     console.log(user, 'SOCKET USERNAME', authenticatedUsername);
-
-    console.log('USER IS AUTHENTICATED');
     console.log('ACTIE USERE ARE', activeUsers);
-
     return next();
   } catch (err) {
     console.log(err);
@@ -110,6 +99,7 @@ io.use(async (socket, next) => {
 let recipientUsername;
 io.on('connection', (socket) => {
   console.log('a user connected');
+
   // PERSON TO PERSON MESSAGE
   socket.on('send-chat-message', (chatDetails) => {
     const {recipientUsername, msg, formattedTime} = chatDetails;
@@ -124,7 +114,6 @@ io.on('connection', (socket) => {
       console.log(`Sent message to ${recipientSocketName} with socket ID ${recipientSocketId}`);
     } else {
       console.log(`Recipient ${recipientSocketName} not found in active users.`);
-      // Handle the case when the recipient is not found in active users.
     }
   });
 
@@ -135,22 +124,19 @@ io.on('connection', (socket) => {
     console.log('Received group message:', groupMessage);
 
     // Filter active group members from the groupMembers array
-
     activeGroupMembers = groupMembers.map((memberUsername) =>
-    activeUsers.find((user) => user.username === memberUsername)
-  );
-    console.log(activeGroupMembers,"active group memebers")
-
+      activeUsers.find((user) => user.username === memberUsername),
+    );
+    console.log(activeGroupMembers, 'active group memebers');
     // Loop through active group members and send the group message to each member
     activeGroupMembers.forEach((member) => {
       const recipientSocketId = member.socketId;
       // Send the group message to the recipient using their socket ID.
-      // io.to(recipientSocketId).emit('chat-message', chatDetails);
-      io.to(recipientSocketId).emit('group-chat-message',groupMessage );
+
+      io.to(recipientSocketId).emit('group-chat-message', groupMessage );
       console.log(`Sent group message to ${member.username} with socket ID ${recipientSocketId}`);
     });
-});
-
+  });
 
   socket.on('disconnect', () => {
     const index = activeUsers.indexOf(authenticatedUsername);
@@ -165,7 +151,6 @@ sequelize
 // .sync({ force: true })
     .sync()
     .then((response) => {
-    // console.log(response)
       server.listen(3000);
     })
     .catch((err) => {

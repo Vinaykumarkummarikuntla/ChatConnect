@@ -13,8 +13,10 @@ router.post('/creategroup', userAuthentication.authenticate, groupController.cre
 // specific group messages
 router.get('/groupchatdetails/:groupid', userAuthentication.authenticate, groupController.groupDetails);
 
+// group names
 router.get('/getgroupnames', userAuthentication.authenticate, groupController.getgroupnames);
 
+// add user to group
 router.post('/groups/addUser', userAuthentication.authenticate, groupController.addUserToGroup);
 
 // group delete

@@ -1,9 +1,7 @@
 /* eslint-disable max-len */
 /* eslint-disable require-jsdoc */
-// const socket = io()
-const JWT_TOKEN = localStorage.getItem('token');
 
-console.log(JWT_TOKEN);
+const JWT_TOKEN = localStorage.getItem('token');
 const socket = io('http://localhost:3000', {
   query: {token: JWT_TOKEN},
 });
@@ -12,29 +10,6 @@ let selectedUser = null;
 let groupSelectedInformation = null;
 let groupMembers = null;
 
-// TODO PERSONAL MESSSAGES STORING
-// async function personalMessagesToDb(event) {
-//   event.preventDefault();
-//   const msg = document.getElementById('message').value;
-//   const userId = selectedUser;
-//   console.log('msg', msg, userId);
-//   const obj = {msg};
-//   const token = localStorage.getItem('token');
-
-//   try {
-//     const response = await axios.post(
-//         'http://localhost:3000/personalmsgs',
-//         obj,
-//         {
-//           headers: {Authorization: token},
-//         },
-//     );
-//     console.log(response.data, 'FULLDATA');
-//     console.log(response.data.chatdetails.message, 'MESSAGE');
-//   } catch (err) {
-//     console.log(err);
-//   }
-// }
 
 function formatTime(timestamp) {
   const options = {hour: 'numeric', minute: 'numeric', hour12: true};
@@ -45,7 +20,6 @@ async function personalMessagesToDb(event) {
   event.preventDefault();
   const msg = document.getElementById('message').value;
   const recipientUsername = selectedUser;
-
   console.log('msg', msg, recipientUsername);
 
   const timestamp = new Date().toISOString();
@@ -56,19 +30,14 @@ async function personalMessagesToDb(event) {
   socket.emit('send-chat-message', chatDetails);
 }
 
-socket.on('chat-message', (receivedMessage) => {
+  socket.on('chat-message', (receivedMessage) => {
   console.log('Received message:', receivedMessage);
 
   // Access the individual properties of the received message
   const {recipientUsername, msg, formattedTime} = receivedMessage;
   console.log('Recipient:', recipientUsername);
-  console.log('Message:', msg);
-  console.log('Formatted Time:', formattedTime);
-
-  // Call the showMessages function here with the received message details
   showMessages(recipientUsername, msg, formattedTime);
 });
-
 
 // TODO GROUP MESSSAGES STORING
 async function groupMessagesToDb(event) {
@@ -76,30 +45,20 @@ async function groupMessagesToDb(event) {
   const msg = document.getElementById('message').value;
   const timestamp = new Date().toISOString();
   const formattedTime = formatTime(timestamp);
-  console.log(groupMembers, 'sendig group member to post a msg to group');
+  console.log(groupMembers, 'sending group member to post a msg to group');
   console.log(selectedGroup, 'group sending to a post a msg to group');
   console.log('WHILE SENDING GROUP MESSAGE', msg, selectedGroup, groupMembers);
   const groupMessage = {msg, selectedGroup, groupMembers, formattedTime};
-
+  
   socket.emit('send-group-message', groupMessage);
 }
-// socket.on('group-chat-message', (groupMessage) => {
-//   console.log(groupMessage,"froend group message")
-//   // const { msg, selectedGroup, formattedTime } = groupMessage;
-//   // showMessages( , msg, formattedTime);
-
-// })
 
 socket.on('group-chat-message', (groupMessage) => {
-  alert(groupMessage.msg)
-  
-  console.log('group message frontend part', groupMessage);
+  alert(groupMessage.msg);
   const {msg, selectedGroup, formattedTime} = groupMessage;
   const msgsendername = 'Group';
-
   showMessages(msgsendername, msg, formattedTime);
 });
-
 
 // TODO RETRIEVING MESSAGES SHOWING ON SCREEN UI CHAT
 // window.addEventListener('DOMContentLoaded', () => {
@@ -229,27 +188,11 @@ function showGroupName(group, groupId) {
   </dialog>
 </li>
 `;
-
-  parentElement.innerHTML += childHTML;
-
-  // // Retrieve stored group IDs from local storage
-  // const storedGroupIds = localStorage.getItem('groupIds');
-  // const groupIds = storedGroupIds ? JSON.parse(storedGroupIds) : [];
-
-  // // Add the new group ID to the array
-  // groupIds.push(groupId);
-
-  // // Save the updated group IDs back to local storage
-  // localStorage.setItem('groupIds', JSON.stringify(groupIds));
+parentElement.innerHTML += childHTML;
 }
 
-// TODO DIALOG BOX OPEN
-// function showOptions(groupId) {
-//   console.log(groupId);
-//   const dialog = document.getElementById('optionsDialog');
 
-//   dialog.showModal();
-// }
+
 // TODO CLOSE DIALOG BOX
 function closeOptionsDialog() {
   const dialog = document.getElementById('optionsDialog');
@@ -287,7 +230,6 @@ function Options(username, userid) {
   // showOptions();
 }
 
-
 // TODO RETRIEVING GROUP CHAT MESSAGES
 async function groupChatMessages(groupId) {
   const token = localStorage.getItem('token');
@@ -306,9 +248,11 @@ async function groupChatMessages(groupId) {
     groupMembers = await response.data.groupMembers;
     groupSelectedInformation = await response.data.groupDetails;
 
-    console.log(groupSelectedInformation, 'group response attached to variable');
+    console.log(
+        groupSelectedInformation,
+        'group response attached to variable',
+    );
     console.log(groupMembers, 'group Members');
-
 
     // Update the dialog content using the selectedGroup information
     const dialogContent = document.getElementById('optionsSection');
@@ -330,7 +274,9 @@ async function groupChatMessages(groupId) {
 
     const deleteUserButton = document.createElement('button');
     deleteUserButton.textContent = 'Delete User';
-    deleteUserButton.addEventListener('click', () => deleteUser(username, groupSelectedInformation.group_id));
+    deleteUserButton.addEventListener('click', () =>
+      deleteUser(username, groupSelectedInformation.group_id),
+    );
     const userList = document.getElementById('userList');
 
     // Loop through the groupMembers array and add each username to the userList
@@ -340,7 +286,9 @@ async function groupChatMessages(groupId) {
 
       const deleteUserButton = document.createElement('button');
       deleteUserButton.textContent = 'Delete User';
-      deleteUserButton.addEventListener('click', () => deleteUser(username, groupSelectedInformation.group_id));
+      deleteUserButton.addEventListener('click', () =>
+        deleteUser(username, groupSelectedInformation.group_id),
+      );
       const userList = document.getElementById('userList');
       userList.appendChild(listItem);
       userList.appendChild(deleteUserButton);
@@ -460,21 +408,6 @@ async function loadGroupNames() {
     parentElement.innerHTML += childHTML;
   });
 }
-// <li class="group-item">
-//   <a href="#" class="group-name" onclick="groupChatMessages(${group.groupId})">${group.groupName}
-//   <button class="dropbtn" onclick="showOptions(${group.groupId})">EDIT GROUP</button></a>
-//   <dialog id="optionsDialog">
-//   <a href="#" onclick="deleteGroup(${group.groupId}, '${group.groupName}')">Delete Group</a>
-//     // <div id="optionsSection">
-//     //   <h4>Users:</h4>
-//     //   <ul id="userList"></ul>
-//     // </div>
-//     // <input type="text" id="searchInput2" placeholder="Search User">
-//     // <button onclick="searchUsers2()">Search</button>
-//     // <div id="searchResults"></div>
-//     // <button onclick="closeOptionsDialog()">Close</button>
-//   </dialog>
-// </li>
 
 
 // TODO SEARCH USERS IN GROUP
@@ -546,23 +479,12 @@ async function performUserSearch(searchQuery) {
 //     console.log("USERS",response.data)
 //     const users = response.data.userDetails
 
-//     // Get the dropdown element
-//     const userDropdown = document.getElementById("userDropdown");
-
-//     // Loop through the users and create an option element for each user
-//     users.forEach(user => {
-//       const option = document.createElement("option");
-//       option.value = user.id; // Use a unique identifier for the user (e.g., user ID)
-//       option.text = user.username; // Display the username in the dropdown option
-//       userDropdown.appendChild(option);
 //     });
 //   } catch (error) {
 //     console.error(error);
 //   }
 // }
 
-// // Call the getUsers function to populate the dropdown on page load
-// window.addEventListener("DOMContentLoaded", getUsers);
 
 // TODO RETREIVING PERSONAL CHAT MESSAGES
 // ! ASYNC REMOVED HERE
@@ -623,7 +545,6 @@ async function deleteGroup(groupId) {
   }
 }
 
-
 function optionsDialog(groupId) {
   console.log('method called with groupId:', groupId);
   const dialog = document.getElementById('optionsDialog');
@@ -648,16 +569,19 @@ function createOptionsDialog() {
 }
 console.log('groupSelectedInformation', groupSelectedInformation);
 
-
 async function addUserToGroupDB(username, userId) {
   const groupId = groupSelectedInformation.group_id;
-  console.log('I AM SENDING THIS GROUP ID WHILE ADDING USER TO GROUPDB', groupId);
+  console.log(
+      'I AM SENDING THIS GROUP ID WHILE ADDING USER TO GROUPDB',
+      groupId,
+  );
   const user = {username, userId, groupId};
   const token = localStorage.getItem('token');
   console.log('ADDING USER TO GROUP ', user);
   try {
     const response = await axios.post(
-        `http://localhost:3000/groups/addUser`, {user},
+        `http://localhost:3000/groups/addUser`,
+        {user},
         {
           headers: {Authorization: token},
         },
@@ -667,7 +591,6 @@ async function addUserToGroupDB(username, userId) {
     console.log(err);
   }
 }
-
 
 async function deleteUser(username, groupid) {
   console.log(username, groupid, 'deleted user name from the group');

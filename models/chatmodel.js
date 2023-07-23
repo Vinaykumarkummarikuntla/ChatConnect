@@ -1,24 +1,24 @@
-const Sequelize = require('sequelize')
-const sequelize = require('../util/database')
+const Sequelize = require('sequelize');
+const sequelize = require('../util/database');
 
 const message = sequelize.define('messages', {
-  id:{
+  id: {
     type: Sequelize.INTEGER,
     autoIncrement: true,
     allowNull: false,
-    primaryKey: true
+    primaryKey: true,
   },
   message: {
     type: Sequelize.STRING,
-    allowNull: false
+    allowNull: false,
   },
   userId: {
     type: Sequelize.INTEGER,
-    allowNull: false
+    allowNull: false,
   },
   groupId: {
     type: Sequelize.INTEGER,
   },
-})
+});
 
-module.exports = message
+module.exports = message;

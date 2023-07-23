@@ -11,5 +11,4 @@ router.post('/personalmsgs', userAuthentication.authenticate, chatController.cha
 // get messages
 router.get('/personalmsgs', userAuthentication.authenticate, chatController.getchatdetails);
 
-
 module.exports = router;

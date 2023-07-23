@@ -42,9 +42,9 @@ exports.addUserToGroup = async (req, res, next) => {
     const {username, userId, groupId} = req.body.user;
     console.log('EXTRACTED USERNAME AND ID', username, userId, groupId);
     const data = await groupUser.create({
-      role: 'member', // Assuming you want to add the user as a member role
-      id: userId, // Using the correct column name for the foreign key in the GroupUser model
-      group_id: groupId, // Using the correct column name for the foreign key in the GroupUser model
+      role: 'member',
+      id: userId,
+      group_id: groupId,
     });
     res.status(200).json({groupdetails: data});
   } catch (err) {
@@ -59,7 +59,6 @@ exports.deleteGroup = async (req, res, next) => {
   try {
     const groupid = req.params.groupId;
     console.log('delete group id ', groupid);
-    // Assuming you have a method in your 'groupmodel' to delete a group by its ID
     const deletedGroup = await group.destroy({
       where: {group_id: groupid},
     });
@@ -80,18 +79,17 @@ exports.groupDetails = async (req, res, next) => {
     const groupId = req.params.groupid;
     console.log('backend getted delete group user id', groupId);
     const groupInformation = await group.findByPk(groupId);
-    console.log(groupInformation, 'groupInformation----------------------');
-
+    // console.log(groupInformation, 'groupInformation----------------------');
 
     // Find the associated userIds from the group_user table
     const groupUsers = await groupUser.findAll({
       where: {group_id: groupId},
     });
-    console.log(groupUsers, 'groupUSERS WHO ARE THE PART OF THE GROUP ----------------------');
+    // console.log(groupUsers, 'groupUSERS WHO ARE THE PART OF THE GROUP ----------------------');
 
     // Get an array of userIds from the groupUsers
     const userIds = groupUsers.map((groupUser) => groupUser.id);
-    console.log(userIds, 'SPECIFIC USERS WHO ARE THE PART OF THE GROUP ----------------------');
+    // console.log(userIds, 'SPECIFIC USERS WHO ARE THE PART OF THE GROUP ----------------------');
 
     // Find the usernames of the associated users from the users table
     const users = await User.findAll({
@@ -101,7 +99,6 @@ exports.groupDetails = async (req, res, next) => {
     // Map the users to get only the usernames
     const usernames = users.map((user) => user.username);
     console.log('USERNAMES WHO ARE THE PART OF GROUP', usernames);
-
     res.status(200).json({groupDetails: groupInformation, groupMembers: usernames});
   } catch (err) {
     logger.error('An error occurred:', err);
@@ -114,14 +111,14 @@ exports.groupDetails = async (req, res, next) => {
 exports.groupDeleteUser = async (req, res, next) => {
   try {
     const {username, groupid} = req.params;
-    console.log('backend getted group delete userd id is &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& ', username, groupid);
+    // console.log('backend getted group delete userd id is &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& ', username, groupid);
     // Find the associated userIds from the group_user table
     const userDetails = await User.findAll({
       where: {username: username},
     });
 
     const userIds = userDetails.map((user) => user.id);
-    console.log('delete user id++++++++++++++++++++++++++', userIds);
+    // console.log('delete user id++++++++++++++++++++++++++', userIds);
     const groupMemberDelete = await groupUser.destroy({
       where: {id: userIds, group_id: groupid},
     });

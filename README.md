@@ -1,7 +1,5 @@
 # Chat Connect Application
 
-![Chat Connect Logo](path/to/logo.png) (Optional: Include a logo or relevant image here)
-
 Welcome to Chat Connect! This application allows users to connect and chat with each other in real-time. Whether you want to stay connected with friends, collaborate with colleagues, or meet new people, Chat Connect has got you covered!
 
 ## Features
